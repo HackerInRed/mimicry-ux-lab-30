@@ -9,7 +9,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 // Use your actual Clerk Publishable Key here
-const clerkPubKey = "pk_test_YWN0aXZlLWxlbXVyLTI3LmNsZXJrLmFjY291bnRzLmRldiQ";
+// Format: pk_test_****
+const clerkPubKey = "pk_test_c3RhYmxlLWNvYnJhLTg3LmNsZXJrLmFjY291bnRzLmRldiQ";
 
 const queryClient = new QueryClient();
 

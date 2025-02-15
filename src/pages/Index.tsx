@@ -38,8 +38,8 @@ const Index = () => {
     // Load chat history when user logs in
     const loadChatHistory = async () => {
       try {
-        const metadata = await user?.metadata;
-        const savedMessages = (metadata as any)?.chatHistory as Message[] || [];
+        const publicMetadata = user?.publicMetadata;
+        const savedMessages = (publicMetadata as any)?.chatHistory as Message[] || [];
         if (savedMessages.length > 0) {
           setMessages(savedMessages);
         }
@@ -59,7 +59,7 @@ const Index = () => {
       if (user && messages.length > 0) {
         try {
           await user.update({
-            unsafeMetadata: {
+            publicMetadata: {
               chatHistory: messages,
             },
           });
