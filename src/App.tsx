@@ -4,15 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ClerkProvider, SignIn, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { ClerkProvider, SignedIn, SignedOut, SignIn } from "@clerk/clerk-react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key");
-}
+// Use your actual Clerk Publishable Key here
+const clerkPubKey = "pk_test_YWN0aXZlLWxlbXVyLTI3LmNsZXJrLmFjY291bnRzLmRldiQ";
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const queryClient = new QueryClient();
 
 const App = () => (

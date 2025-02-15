@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -37,8 +38,8 @@ const Index = () => {
     // Load chat history when user logs in
     const loadChatHistory = async () => {
       try {
-        const userData = await user?.privateMetadata.get();
-        const savedMessages = userData?.chatHistory as Message[] || [];
+        const metadata = await user?.metadata;
+        const savedMessages = (metadata as any)?.chatHistory as Message[] || [];
         if (savedMessages.length > 0) {
           setMessages(savedMessages);
         }
@@ -58,7 +59,7 @@ const Index = () => {
       if (user && messages.length > 0) {
         try {
           await user.update({
-            privateMetadata: {
+            unsafeMetadata: {
               chatHistory: messages,
             },
           });
