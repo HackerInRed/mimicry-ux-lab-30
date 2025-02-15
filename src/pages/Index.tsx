@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
 
@@ -32,13 +31,21 @@ const Index = () => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognitionAPI();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
 
       recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
         setInput(transcript);
-        setIsListening(false);
+        
+        // If this is a final result
+        if (event.results[event.results.length - 1].isFinal) {
+          // Keep the final result in the input
+          setInput(transcript);
+        }
       };
 
       recognitionRef.current.onerror = (event) => {
