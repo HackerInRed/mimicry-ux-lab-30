@@ -1,5 +1,7 @@
+
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Message {
   text: string;
@@ -15,8 +17,10 @@ const Index = () => {
   ]);
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -80,22 +84,50 @@ const Index = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = { text: input, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://localhost:8000/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: userMessage.text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
       const botResponse = {
-        text: "I understand your question. Let me help you with that.",
+        text: data.answer,
         isBot: true,
       };
       setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to get response from the assistant. Please try again.",
+      });
+      
+      const errorMessage = {
+        text: "I apologize, but I'm having trouble processing your request. Please try again.",
+        isBot: true,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -141,11 +173,12 @@ const Index = () => {
             <button
               type="button"
               onClick={toggleListening}
+              disabled={isLoading}
               className={`transition-all duration-200 rounded-xl p-3 ${
                 isListening 
                   ? "bg-red-500/80 hover:bg-red-500" 
                   : "bg-white/10 hover:bg-white/20"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <Mic className="w-5 h-5" />
             </button>
@@ -155,11 +188,15 @@ const Index = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your question here..."
-                className="flex-1 bg-transparent text-sm md:text-base focus:outline-none"
+                disabled={isLoading}
+                className="flex-1 bg-transparent text-sm md:text-base focus:outline-none disabled:cursor-not-allowed"
               />
               <button
                 type="submit"
-                className="ml-2 text-white/70 hover:text-white transition-colors"
+                disabled={isLoading}
+                className={`ml-2 text-white/70 hover:text-white transition-colors ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <ArrowRight className="w-5 h-5" />
               </button>
