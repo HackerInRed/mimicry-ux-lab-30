@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, ArrowRight } from "lucide-react";
+import { MessageSquare, ArrowRight, Mic } from "lucide-react";
 
 interface Message {
   text: string;
@@ -82,20 +82,28 @@ const Index = () => {
           onSubmit={handleSubmit}
           className="border-t border-white/10 p-4 input-animation"
         >
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your question here..."
-              className="flex-1 bg-secondary rounded-xl px-4 py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
-            />
+          <div className="flex items-center space-x-4">
             <button
-              type="submit"
+              type="button"
               className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-3"
             >
-              <ArrowRight className="w-5 h-5" />
+              <Mic className="w-5 h-5" />
             </button>
+            <div className="flex-1 bg-secondary rounded-xl px-4 py-3 flex items-center">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your question here..."
+                className="flex-1 bg-transparent text-sm md:text-base focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="ml-2 text-white/70 hover:text-white transition-colors"
+              >
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </form>
       </div>
