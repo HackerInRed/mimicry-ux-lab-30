@@ -98,12 +98,17 @@ const Index = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ question: userMessage.text }),
       });
 
+      if (response.status === 405) {
+        throw new Error('Method not allowed. Please check the API endpoint configuration.');
+      }
+
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -117,7 +122,7 @@ const Index = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to get response from the assistant. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get response from the assistant. Please try again.",
       });
       
       const errorMessage = {
