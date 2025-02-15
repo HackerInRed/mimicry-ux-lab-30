@@ -2,11 +2,23 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   text: string;
   isBot: boolean;
 }
+
+const ThinkingDots = () => (
+  <div className="flex space-x-2 items-center p-4 bg-secondary rounded-2xl message-animation">
+    <MessageSquare className="w-5 h-5 shrink-0" />
+    <div className="flex space-x-2">
+      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+    </div>
+  </div>
+);
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -31,7 +43,6 @@ const Index = () => {
   }, [messages]);
 
   useEffect(() => {
-    // Initialize speech recognition
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognitionAPI();
@@ -45,9 +56,7 @@ const Index = () => {
         
         setInput(transcript);
         
-        // If this is a final result
         if (event.results[event.results.length - 1].isFinal) {
-          // Keep the final result in the input
           setInput(transcript);
         }
       };
@@ -145,7 +154,7 @@ const Index = () => {
       </div>
 
       <div className="w-full max-w-4xl glass-morphism rounded-2xl overflow-hidden">
-        <div className="h-[500px] overflow-y-auto p-6 space-y-4">
+        <div className="h-[500px] overflow-y-auto p-6 space-y-4 scrollbar-hide">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -163,10 +172,17 @@ const Index = () => {
                 {message.isBot && (
                   <MessageSquare className="w-5 h-5 mt-1 shrink-0" />
                 )}
-                <p className="text-sm md:text-base">{message.text}</p>
+                <div className="prose prose-invert min-w-0 prose-p:leading-relaxed prose-pre:p-0">
+                  <ReactMarkdown>{message.text}</ReactMarkdown>
+                </div>
               </div>
             </div>
           ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <ThinkingDots />
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
