@@ -2,12 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useUser } from "@clerk/clerk-react";
 
 interface Message {
   text: string;
   isBot: boolean;
-  timestamp?: number;
 }
 
 const Index = () => {
@@ -15,7 +13,6 @@ const Index = () => {
     {
       text: "Hello! I'm your FAQ assistant. How can I help you today?",
       isBot: true,
-      timestamp: Date.now(),
     },
   ]);
   const [input, setInput] = useState("");
@@ -24,7 +21,6 @@ const Index = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
-  const { user } = useUser();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,44 +29,6 @@ const Index = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    // Load chat history when user logs in
-    const loadChatHistory = async () => {
-      try {
-        const publicMetadata = user?.publicMetadata;
-        const savedMessages = (publicMetadata as any)?.chatHistory as Message[] || [];
-        if (savedMessages.length > 0) {
-          setMessages(savedMessages);
-        }
-      } catch (error) {
-        console.error('Error loading chat history:', error);
-      }
-    };
-
-    if (user) {
-      loadChatHistory();
-    }
-  }, [user]);
-
-  // Save chat history when messages change
-  useEffect(() => {
-    const saveChatHistory = async () => {
-      if (user && messages.length > 0) {
-        try {
-          await user.update({
-            publicMetadata: {
-              chatHistory: messages,
-            },
-          });
-        } catch (error) {
-          console.error('Error saving chat history:', error);
-        }
-      }
-    };
-
-    saveChatHistory();
-  }, [messages, user]);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -130,11 +88,7 @@ const Index = () => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { 
-      text: input, 
-      isBot: false,
-      timestamp: Date.now(),
-    };
+    const userMessage = { text: input, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -161,7 +115,6 @@ const Index = () => {
       const botResponse = {
         text: data.answer,
         isBot: true,
-        timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, botResponse]);
     } catch (error) {
@@ -175,7 +128,6 @@ const Index = () => {
       const errorMessage = {
         text: "I apologize, but I'm having trouble processing your request. Please try again.",
         isBot: true,
-        timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
